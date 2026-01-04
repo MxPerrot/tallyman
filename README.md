@@ -5,6 +5,13 @@ Tallyman stores tasks in a **Markdown table**, renders them with **glow**.
 
 Works in and out of flatpak integrated terminals!
 
+> [!CAUTION]
+> Now that I think about it, I might have left a wild `rm` command with shitty argument sanitisation.
+> 
+> Use at your own risk.
+> 
+> Will fix later
+
 ## Install
 
 1. Clone this repository
