@@ -1,0 +1,21 @@
+{
+  "document": {
+    "block_prefix": "\n",
+    "block_suffix": "\n",
+    "margin": 2
+  },
+  "heading": {
+    "bold": true
+  },
+  "h1": {
+    "prefix": ""
+  },
+  "strong": {
+    "bold": true
+  },
+  "strikethrough": {
+    "crossed_out": true,
+    "faint": true,
+    "color": "#6272A4"
+  }
+}

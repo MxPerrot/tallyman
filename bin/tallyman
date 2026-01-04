@@ -1,63 +1,35 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-TALLYMAN_FILE="${TALLYMAN_FILE:-$HOME/docs/todo.md}"
-DATE_FMT="%Y-%m-%d"
+BASE_DIR="$HOME/.local"
 
-host_exec() {
-  if command -v "$1" >/dev/null 2>&1; then
-    "$@"
-  elif command -v flatpak-spawn >/dev/null 2>&1; then
-    flatpak-spawn --host "$@"
-  else
-    echo "Error: cannot execute $1" >&2
+source "$BASE_DIR/lib/tallyman/config.sh"
+source "$BASE_DIR/lib/tallyman/utils.sh"
+source "$BASE_DIR/lib/tallyman/render.sh"
+source "$BASE_DIR/lib/tallyman/table.sh"
+source "$BASE_DIR/lib/tallyman/usage.sh"
+
+for f in "$BASE_DIR/lib/tallyman/commands/"*.sh; do
+  source "$f"
+done
+
+cmd="${1:-list}"
+
+case "$cmd" in
+  -h|--help) usage ;;
+  ""|list)
+    [ "${1:-}" = "list" ] && shift
+    cmd_list "$@"
+    ;;
+  add) shift; cmd_add "$@" ;;
+  done) shift; cmd_done "$@" ;;
+  edit) shift; cmd_edit "$@" ;;
+  stats) shift; cmd_stats "$@" ;;
+  archive) shift; cmd_archive "$@" ;;
+  *)
+    echo "tallyman: unknown command '$cmd'" >&2
+    echo >&2
+    usage >&2
     exit 1
-  fi
-}
-
-normalize_priority() {
-  local p
-  p="$(printf '%s' "${1:-MEDIUM}" | tr '[:lower:]' '[:upper:]')"
-  case "$p" in HIGH|MEDIUM|LOW) echo "$p" ;; *) return 1 ;; esac
-}
-
-ensure_table() {
-  mkdir -p "$(dirname "$TALLYMAN_FILE")"
-  if [ ! -f "$TALLYMAN_FILE" ]; then
-    cat > "$TALLYMAN_FILE" <<'EOF'
-# TO-DO
-
-Done | Date | Priority | Description
--:|:-|:-|:-
-EOF
-  fi
-}
-
-cmd_list() {
-  ensure_table
-  host_exec glow "$TALLYMAN_FILE"
-}
-
-cmd_add() {
-  [ $# -ge 2 ] || { echo "Usage: tallyman add PRIORITY text"; exit 1; }
-  local prio date text
-  prio="$(normalize_priority "$1")" || { echo "Invalid priority"; exit 1; }
-  shift
-  text="$*"
-  date="$(date +"$DATE_FMT")"
-  ensure_table
-  echo "[ ] | $date | $prio | ${text//|/\/}" >> "$TALLYMAN_FILE"
-  echo "Added: $text"
-}
-
-print_usage() {
-  echo "Usage:"
-  echo "  tallyman                              list current tasks"
-  echo "  tallyman add PRIORITY description     add task with priority (HIGH|MEDIUM|LOW)"
-}
-
-case "${1:-}" in
-  ""|list) cmd_list ;;
-  add)     shift; cmd_add "$@" ;;
-  *)       print_usage; exit 1 ;;
+    ;;
 esac
