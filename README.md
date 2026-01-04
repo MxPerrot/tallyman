@@ -1,2 +1,2 @@
 # tallyman
-A do-do script for the Fedora CLI. 
+A to-do script for the Fedora CLI. 
